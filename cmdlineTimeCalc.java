@@ -2,6 +2,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -159,78 +162,80 @@ public class cmdlineTimeCalc {
 	//Methode for summing up times
 	
 	public static void TimeSum () {
+		System.out.println();
+		System.out.println("Enter the times in this format: 1:23 or 1:23:45");
+		System.out.println("You can also enter negative times for subtraction: -1:23 or -1:23:45");
+		System.out.println("Hit Enter after every value");
+		System.out.println("Last value: Type in q and hit Enter");
 		System.out.println("");
-		System.out.println("Calculation operations are possible.");
 		
-		String input1 = ""; //String for the input of the seconds
-		String input2 = ""; //String for the input of the minutes
+		Scanner sc = new Scanner(System.in);
 		
-		//Read seconds
-		InputStreamReader isr = new InputStreamReader(System.in);
-		BufferedReader br = new BufferedReader(isr);
-		System.out.println("Seconds:");
+		String input="0:00:00";
+		String [] splitStr;
+		List<Integer> values = new ArrayList<Integer>();
 		
-		try {
-			input1=br.readLine();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		int tins =0;
+		
+		while (!input.equals("q")) {
+			values.clear();
+			
+			input=sc.next();
+			splitStr=input.split(":");
+			
+			if (splitStr.length==2) {
+				values.add(0);
+				values.add(Integer.parseInt(splitStr[0]));
+				values.add(Integer.parseInt(splitStr[1]));
+			}
+			if (splitStr.length==3) {
+				values.add(Integer.parseInt(splitStr[0]));
+				values.add(Integer.parseInt(splitStr[1]));
+				values.add(Integer.parseInt(splitStr[2]));
+			}
+			
+			if (input.contains("-")) {
+				values.set(0, -Math.abs(values.get(0)));
+				values.set(1, -Math.abs(values.get(1)));
+				values.set(2, -Math.abs(values.get(2)));
+			}
+			
+			if (values.size()==3) {
+			tins=tins+values.get(0)*3600+values.get(1)*60+values.get(2);}
 		}
 		
-
-		Object Sek = 0;
-		Object Min = 0;
+		int seconds;
+		int minutes;
+		int hours;
 		
+		hours=tins/3600;
+		tins=tins-hours*3600;
 		
-		//Sum up seconds
-		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName("js");    
+		minutes=tins/60;
+		tins=tins-minutes*60;
 		
-		try {
-			Sek = engine.eval(input1);
-		} catch (ScriptException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		seconds=tins;
 		
+		String seczero="";
+		String minzero="";
+		String hzero="";
 		
-		//Read minutes
-		InputStreamReader isrMin = new InputStreamReader(System.in);
-		BufferedReader brMin = new BufferedReader(isrMin);
-		System.out.println("Minutes:");
+		if (seconds<10 && seconds>-10) {seczero="0";};
+		if (minutes<10 && minutes>-10) {minzero="0";};
+		if (hours<10 && hours>-10) {hzero="0";};
 		
-		try {
-			input2=br.readLine();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//Sum up minutes
-		ScriptEngineManager managerMin = new ScriptEngineManager();
-		ScriptEngine engineMin = manager.getEngineByName("js");        
-		try {
-			Min = engine.eval(input2);
-		} catch (ScriptException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		String MinStr = Min.toString();
-		String SekStr = Sek.toString();
-		
-		//Calculate final minutes and seconds
-		int Min1 = Integer.parseInt(MinStr);
-		int Sek1 = Integer.parseInt(SekStr);
-		int SekFinal = Sek1%60;
-		int MinFinal = Min1+(Sek1-Sek1%60)/60;
-		
-		//Output
-		if (SekFinal<10) {
-			System.out.println("Result: " + MinFinal + ":" + "0" + SekFinal);
+		if (hours<0 || minutes<0 || seconds<0) {
+			hours=Math.abs(hours);
+			minutes=Math.abs(minutes);
+			seconds=Math.abs(seconds);
+			
+			System.out.println();
+			System.out.println("-"+hzero+hours+":"+minzero+minutes+":"+seczero+seconds);
 		} else {
 		
-		System.out.println("Result: " + MinFinal + ":" + SekFinal); };
+			System.out.println();
+		System.out.println(hzero+hours+":"+minzero+minutes+":"+seczero+seconds);
+	}
 	}
 	
 	
@@ -336,8 +341,9 @@ public class cmdlineTimeCalc {
 		String inputStr = "";
 		System.out.println("1: Convert time: Only converts into another unit (Decimal)");
 		System.out.println("2: Convert time: Split into separate units");
-		System.out.println("3: Sum up durations (Only for minutes and seconds) (eg for music pieces)");
-		System.out.println("4: Convert seperate units into a decimal number");
+		System.out.println("3: Convert seperate units into a decimal number");
+		System.out.println("4: Sum up durations (eg for music pieces)");
+		
 		System.out.println("Enter action number:");
 		
 		//Read user input
@@ -365,11 +371,11 @@ public class cmdlineTimeCalc {
 		catch (java.lang.NumberFormatException f) {System.out.println(""); System.out.println("Check your input"); System.out.println(""); SeperateUnits();}
 		catch (java.lang.ArrayIndexOutOfBoundsException g) {System.out.println(""); System.out.println("Check your input"); System.out.println(""); SeperateUnits();}
 	}
-	if (inputStr.equals("3")) {
+	if (inputStr.equals("4")) {
 		TimeSum();
 	}
 	
-	if (inputStr.equals("4")) {
+	if (inputStr.equals("3")) {
 		SeparateToDecimal();
 	}
 	}
